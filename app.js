@@ -1,17 +1,10 @@
 const GOOGLE_CLIENT_ID =
   '758097653129-i5cda00k5b73uudvmmalj2jdvk70t5jr.apps.googleusercontent.com';
 
-const SHARED_AUTH_TOKEN_KEY = 'tools501_google_id_token';
+const HUB_API_URL =
+  'https://script.google.com/macros/s/AKfycbyAHpUfM1RrPJbamCVcc5rGhUgRKoLRKSULBGnCNGLyCSaFU5lp7SX2Ge1Wwv9YEV5-Sg/exec';
 
-const APPS = [
-  {
-    id: 'delivery',
-    title: 'Delivery',
-    description: 'Work requests and status dashboard',
-    url: '/delivery/',
-    apiUrl: 'https://script.google.com/macros/s/AKfycbz7tPrVsKyZ85-ga8iplEC7hZ-Uhg6cUIGjnEkO-aN6IAhtrrRyzU7CT8xlKrhInyal/exec'
-  }
-];
+const SHARED_AUTH_TOKEN_KEY = 'tools501_google_id_token';
 
 let authToken = null;
 
@@ -68,7 +61,7 @@ function showToast(message) {
   }, 2500);
 }
 
-async function callAppAuth(app) {
+async function hubApi(action, data = {}) {
 
   const formData = new URLSearchParams();
 
@@ -76,12 +69,12 @@ async function callAppAuth(app) {
     'payload',
     JSON.stringify({
       token: authToken,
-      action: 'auth',
-      data: {}
+      action,
+      data
     })
   );
 
-  const response = await fetch(app.apiUrl, {
+  const response = await fetch(HUB_API_URL, {
     method: 'POST',
     body: formData
   });
@@ -98,7 +91,6 @@ function renderApps(apps) {
       <a class="app-card" href="${app.url}">
         <div>
           <h2>${app.title}</h2>
-          <p>${app.description}</p>
         </div>
         <span>Відкрити</span>
       </a>
@@ -110,25 +102,17 @@ async function loadAllowedApps() {
 
   showOnly('loader');
 
-  const checks = await Promise.allSettled(
-    APPS.map(async app => {
-      const result = await callAppAuth(app);
+  const result = await hubApi('getApps');
 
-      if (result.error === 'AUTH_REQUIRED') {
-        throw new Error('AUTH_REQUIRED');
-      }
+  if (result.error === 'AUTH_REQUIRED') {
+    throw new Error('AUTH_REQUIRED');
+  }
 
-      if (!result.success) {
-        return null;
-      }
+  if (!result.success) {
+    throw new Error(result.error || 'ACCESS_CHECK_FAILED');
+  }
 
-      return app;
-    })
-  );
-
-  const allowedApps = checks
-    .filter(item => item.status === 'fulfilled' && item.value)
-    .map(item => item.value);
+  const allowedApps = result.data.apps || [];
 
   document
     .getElementById('logoutBtn')
