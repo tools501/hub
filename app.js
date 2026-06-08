@@ -12,6 +12,18 @@ let uiText = {
   accessError: 'Access check failed'
 };
 
+function formatHeaderMeta() {
+
+  const now = new Date();
+
+  return new Intl.DateTimeFormat('uk-UA', {
+    day: '2-digit',
+    month: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit'
+  }).format(now);
+}
+
 function escapeHtml(value) {
 
   return String(value || '')
@@ -80,7 +92,7 @@ function applyUi(ui) {
     ui.title || 'Hub';
 
   document.getElementById('hubSubtitle').innerText =
-    ui.subtitle || '';
+    ui.subtitle || formatHeaderMeta();
 
   document.getElementById('loginTitle').innerText =
     ui.loginTitle || 'Sign in';
@@ -144,7 +156,6 @@ function renderApps(apps) {
         <div>
           <h2>${escapeHtml(app.title)}</h2>
         </div>
-        <span>${escapeHtml(uiText.openApp)}</span>
       </a>
     `)
     .join('');
