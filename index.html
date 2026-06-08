@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <title>Tools Hub</title>
+  <title>Hub</title>
 
   <link rel="stylesheet" href="style.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -19,18 +19,17 @@
 
     <header class="hub-header">
       <div>
-        <h1>TexAC</h1>
-        <p>Tools Hub</p>
+        <h1 id="hubTitle">Hub</h1>
+        <p id="hubSubtitle"></p>
       </div>
 
       <button id="logoutBtn" class="ghost-btn hidden">
-        Вийти
+        Exit
       </button>
     </header>
 
     <section id="loginBlock" class="hub-card login-card">
-      <h2>Вхід</h2>
-      <p>Увійдіть через Google, щоб побачити доступні додатки.</p>
+      <h2 id="loginTitle">Sign in</h2>
 
       <div id="g_id_onload"
         data-client_id="758097653129-i5cda00k5b73uudvmmalj2jdvk70t5jr.apps.googleusercontent.com"
@@ -51,15 +50,15 @@
 
     <section id="appsBlock" class="hidden">
       <div class="section-title">
-        Доступні додатки
+        Apps
       </div>
 
       <div id="appsList" class="apps-list"></div>
     </section>
 
     <section id="emptyBlock" class="hub-card hidden">
-      <h2>Немає доступних додатків</h2>
-      <p>Для цього акаунта поки не знайдено доступу.</p>
+      <h2 id="emptyTitle">No access</h2>
+      <p id="emptyText"></p>
     </section>
 
     <div id="toast"></div>
