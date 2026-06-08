@@ -13,6 +13,11 @@ let uiText = {
   accessError: 'Access check failed'
 };
 let headerClockTimer = null;
+let sessionTimer = null;
+let sessionExpireTimer = null;
+let sessionCountdownTimer = null;
+let sessionExpiresAt = 0;
+let sessionExpired = false;
 
 function formatHeaderMeta() {
 
@@ -43,6 +48,166 @@ function startHeaderClock() {
     updateHeaderMeta,
     1000
   );
+}
+
+function getTokenExpirationMs(token) {
+
+  try {
+    const payload = JSON.parse(
+      atob(
+        String(token || '')
+          .split('.')[1]
+          .replace(/-/g, '+')
+          .replace(/_/g, '/')
+      )
+    );
+
+    return Number(payload.exp) * 1000;
+
+  } catch (e) {
+    return 0;
+  }
+}
+
+function formatSessionCountdown(ms) {
+
+  const totalSeconds = Math.max(
+    0,
+    Math.ceil(ms / 1000)
+  );
+  const minutes = Math.floor(totalSeconds / 60);
+  const seconds = totalSeconds % 60;
+
+  return `${minutes}:${String(seconds).padStart(2, '0')}`;
+}
+
+function updateSessionWarningText() {
+
+  const remaining =
+    sessionExpiresAt - Date.now();
+
+  document
+    .getElementById('sessionWarningText')
+    .innerText =
+      `Сесія завершиться через ${formatSessionCountdown(remaining)}`;
+}
+
+function clearSessionTimers() {
+
+  clearTimeout(sessionTimer);
+  clearTimeout(sessionExpireTimer);
+  clearInterval(sessionCountdownTimer);
+}
+
+function expireSession() {
+
+  sessionExpired = true;
+  authToken = null;
+
+  clearSessionTimers();
+  clearSharedAuthToken();
+
+  document
+    .getElementById('sessionWarning')
+    .classList.add('hidden');
+
+  document
+    .getElementById('sessionExpired')
+    .classList.remove('hidden');
+
+  document.body.classList.add('session-locked');
+}
+
+function startSessionTimer(token) {
+
+  clearSessionTimers();
+
+  sessionExpired = false;
+  sessionExpiresAt =
+    getTokenExpirationMs(token) ||
+    Date.now() + 55 * 60 * 1000;
+
+  document.body.classList.remove('session-locked');
+
+  document
+    .getElementById('sessionWarning')
+    .classList.add('hidden');
+
+  document
+    .getElementById('sessionExpired')
+    .classList.add('hidden');
+
+  updateSessionWarningText();
+
+  const remainingMs =
+    sessionExpiresAt - Date.now();
+
+  if (remainingMs <= 0) {
+    expireSession();
+    return;
+  }
+
+  sessionTimer = setTimeout(() => {
+
+    updateSessionWarningText();
+
+    document
+      .getElementById('sessionWarning')
+      .classList.remove('hidden');
+
+    sessionCountdownTimer = setInterval(
+      updateSessionWarningText,
+      1000
+    );
+
+  }, Math.max(0, remainingMs - 5 * 60 * 1000));
+
+  sessionExpireTimer = setTimeout(
+    expireSession,
+    remainingMs
+  );
+}
+
+function renewSession() {
+
+  authToken = null;
+  sessionExpired = false;
+
+  clearSessionTimers();
+  clearSharedAuthToken();
+
+  document.body.classList.remove('session-locked');
+
+  document
+    .getElementById('sessionWarning')
+    .classList.add('hidden');
+
+  document
+    .getElementById('sessionExpired')
+    .classList.add('hidden');
+
+  document
+    .getElementById('logoutBtn')
+    .classList.add('hidden');
+
+  showOnly('loginBlock');
+}
+
+function resetSessionUi() {
+
+  sessionExpired = false;
+
+  clearSessionTimers();
+
+  document.body.classList.remove('session-locked');
+
+  document
+    .getElementById('sessionWarning')
+    .classList.add('hidden');
+
+  document
+    .getElementById('sessionExpired')
+    .classList.add('hidden');
 }
 
 function escapeHtml(value) {
@@ -147,6 +312,10 @@ function showToast(message) {
 
 async function hubApi(action, data = {}) {
 
+  if (sessionExpired) {
+    throw new Error('AUTH_REQUIRED');
+  }
+
   const formData = new URLSearchParams();
 
   formData.append(
@@ -216,11 +385,13 @@ async function handleCredentialResponse(response) {
 
   authToken = response.credential;
   setSharedAuthToken(authToken);
+  startSessionTimer(authToken);
 
   try {
     await loadAllowedApps();
   } catch (e) {
     console.error(e);
+    resetSessionUi();
     clearSharedAuthToken();
     showOnly('loginBlock');
     showToast(uiText.accessError);
@@ -237,12 +408,14 @@ async function tryExistingSession() {
   }
 
   authToken = token;
+  startSessionTimer(authToken);
 
   try {
     await loadAllowedApps();
   } catch (e) {
     console.error(e);
     authToken = null;
+    resetSessionUi();
     clearSharedAuthToken();
     showOnly('loginBlock');
   }
@@ -252,6 +425,8 @@ document
   .getElementById('logoutBtn')
   .addEventListener('click', () => {
     authToken = null;
+    sessionExpired = false;
+    clearSessionTimers();
     clearSharedAuthToken();
 
     document
@@ -260,6 +435,14 @@ document
 
     showOnly('loginBlock');
   });
+
+document
+  .getElementById('renewWarningBtn')
+  .addEventListener('click', renewSession);
+
+document
+  .getElementById('renewSessionBtn')
+  .addEventListener('click', renewSession);
 
 startHeaderClock();
 tryExistingSession();
