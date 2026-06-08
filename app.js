@@ -7,6 +7,20 @@ const HUB_API_URL =
 const SHARED_AUTH_TOKEN_KEY = 'tools501_google_id_token';
 
 let authToken = null;
+let uiText = {
+  openApp: 'Open',
+  accessError: 'Access check failed'
+};
+
+function escapeHtml(value) {
+
+  return String(value || '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
 
 function getSharedAuthToken() {
 
@@ -49,6 +63,41 @@ function showOnly(blockId) {
   });
 }
 
+function applyUi(ui) {
+
+  if (!ui) {
+    return;
+  }
+
+  uiText = {
+    ...uiText,
+    ...ui
+  };
+
+  document.title = ui.title || 'Hub';
+
+  document.getElementById('hubTitle').innerText =
+    ui.title || 'Hub';
+
+  document.getElementById('hubSubtitle').innerText =
+    ui.subtitle || '';
+
+  document.getElementById('loginTitle').innerText =
+    ui.loginTitle || 'Sign in';
+
+  document.querySelector('.section-title').innerText =
+    ui.appsTitle || 'Apps';
+
+  document.getElementById('emptyTitle').innerText =
+    ui.emptyTitle || 'No access';
+
+  document.getElementById('emptyText').innerText =
+    ui.emptyText || '';
+
+  document.getElementById('logoutBtn').innerText =
+    ui.logout || 'Exit';
+}
+
 function showToast(message) {
 
   const toast = document.getElementById('toast');
@@ -88,11 +137,11 @@ function renderApps(apps) {
 
   appsList.innerHTML = apps
     .map(app => `
-      <a class="app-card" href="${app.url}">
+      <a class="app-card" href="${escapeHtml(app.url)}">
         <div>
-          <h2>${app.title}</h2>
+          <h2>${escapeHtml(app.title)}</h2>
         </div>
-        <span>Відкрити</span>
+        <span>${escapeHtml(uiText.openApp)}</span>
       </a>
     `)
     .join('');
@@ -111,6 +160,8 @@ async function loadAllowedApps() {
   if (!result.success) {
     throw new Error(result.error || 'ACCESS_CHECK_FAILED');
   }
+
+  applyUi(result.data.ui);
 
   const allowedApps = result.data.apps || [];
 
@@ -138,7 +189,7 @@ async function handleCredentialResponse(response) {
     console.error(e);
     clearSharedAuthToken();
     showOnly('loginBlock');
-    showToast('Не вдалося перевірити доступ');
+    showToast(uiText.accessError);
   }
 }
 
