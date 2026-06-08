@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>Tools Hub</title>
+
+  <link rel="stylesheet" href="style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+</head>
+<body>
+
+  <main class="hub-shell">
+
+    <header class="hub-header">
+      <div>
+        <h1>TexAC</h1>
+        <p>Tools Hub</p>
+      </div>
+
+      <button id="logoutBtn" class="ghost-btn hidden">
+        Вийти
+      </button>
+    </header>
+
+    <section id="loginBlock" class="hub-card login-card">
+      <h2>Вхід</h2>
+      <p>Увійдіть через Google, щоб побачити доступні додатки.</p>
+
+      <div id="g_id_onload"
+        data-client_id="758097653129-i5cda00k5b73uudvmmalj2jdvk70t5jr.apps.googleusercontent.com"
+        data-callback="handleCredentialResponse">
+      </div>
+
+      <div class="g_id_signin"></div>
+    </section>
+
+    <section id="loader" class="hub-card hidden">
+      <div class="loader-boxes">
+        <div class="loader-box"></div>
+        <div class="loader-box"></div>
+        <div class="loader-box"></div>
+        <div class="loader-box"></div>
+      </div>
+    </section>
+
+    <section id="appsBlock" class="hidden">
+      <div class="section-title">
+        Доступні додатки
+      </div>
+
+      <div id="appsList" class="apps-list"></div>
+    </section>
+
+    <section id="emptyBlock" class="hub-card hidden">
+      <h2>Немає доступних додатків</h2>
+      <p>Для цього акаунта поки не знайдено доступу.</p>
+    </section>
+
+    <div id="toast"></div>
+
+  </main>
+
+  <script src="app.js"></script>
+
+</body>
+</html>
