@@ -104,12 +104,6 @@ body {
   font-size: 18px;
 }
 
-.app-card p {
-  margin: 5px 0 0;
-  color: #666;
-  font-size: 14px;
-}
-
 .app-card span,
 .ghost-btn {
   min-height: 38px;
