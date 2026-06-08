@@ -9,6 +9,18 @@ body {
   font-family: 'Inter', sans-serif;
 }
 
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background-image:
+    linear-gradient(rgba(24, 24, 24, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(24, 24, 24, 0.032) 1px, transparent 1px);
+  background-size: 44px 44px;
+  mask-image: radial-gradient(circle at center, black 0, transparent 74%);
+}
+
 * {
   box-sizing: border-box;
 }
@@ -33,13 +45,13 @@ body {
   min-height: 68px;
   margin: 0 auto;
   padding: 0 20px;
-  background: rgba(250, 250, 247, 0.82);
-  border-bottom: 1px solid #d9d9d4;
+  background: rgba(250, 250, 247, 0.48);
+  border-bottom: 1px solid rgba(190, 190, 184, 0.58);
   border-radius: 14px 14px 0 0;
   box-shadow:
     0 1px 0 rgba(255, 255, 255, 0.8) inset,
     0 10px 28px rgba(0, 0, 0, 0.04);
-  backdrop-filter: blur(14px);
+  backdrop-filter: blur(18px) saturate(1.12);
 }
 
 .hub-header h1 {
@@ -60,13 +72,13 @@ body {
 
 .hub-card,
 .app-card {
-  background: rgba(250, 250, 247, 0.68);
-  border: 1px solid #dadad7;
+  background: rgba(250, 250, 247, 0.42);
+  border: 1px solid rgba(194, 194, 188, 0.62);
   border-radius: 10px;
   box-shadow:
     0 1px 0 rgba(255, 255, 255, 0.8) inset,
     0 12px 30px rgba(0, 0, 0, 0.045);
-  backdrop-filter: blur(16px);
+  backdrop-filter: blur(18px) saturate(1.12);
 }
 
 .hub-card {
@@ -118,7 +130,7 @@ body {
   height: 42px;
   border: 1px solid #d8d8d4;
   border-radius: 50%;
-  background: #f3f3f0;
+  background: rgba(243, 243, 240, 0.5);
   font-size: 20px;
 }
 
@@ -177,13 +189,13 @@ body {
   min-height: 430px;
   margin: 0 auto;
   padding: 28px 24px 32px;
-  background: rgba(250, 250, 247, 0.56);
-  border: 1px solid #d9d9d4;
+  background: rgba(250, 250, 247, 0.34);
+  border: 1px solid rgba(194, 194, 188, 0.62);
   border-top: 0;
   border-radius: 0 0 14px 14px;
   box-shadow:
     0 18px 48px rgba(0, 0, 0, 0.055);
-  backdrop-filter: blur(18px);
+  backdrop-filter: blur(22px) saturate(1.12);
 }
 
 .apps-list {
@@ -225,7 +237,7 @@ body {
 .app-card:hover {
   transform: translateY(-2px);
   border-color: #c4c4bf;
-  background: rgba(255, 255, 255, 0.86);
+  background: rgba(255, 255, 255, 0.62);
   box-shadow:
     0 1px 0 rgba(255, 255, 255, 0.9) inset,
     0 14px 34px rgba(0, 0, 0, 0.06);
@@ -248,7 +260,7 @@ body {
   padding: 8px 13px;
   border-radius: 8px;
   border: 1px solid #d2d2ce;
-  background: #f5f5f2;
+  background: rgba(245, 245, 242, 0.5);
   color: #222;
   font-size: 13px;
   font-weight: 800;
@@ -264,7 +276,7 @@ body {
 
 .ghost-btn:hover {
   border-color: #c4c4bf;
-  background: #fff;
+  background: rgba(255, 255, 255, 0.68);
 }
 
 #toast {
@@ -297,7 +309,8 @@ body {
 
 @media (max-width: 680px) {
   .hub-shell {
-    padding: 20px 18px 28px;
+    align-content: center;
+    padding: 18px;
   }
 
   .hub-header {
