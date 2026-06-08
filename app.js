@@ -9,8 +9,10 @@ const SHARED_AUTH_TOKEN_KEY = 'tools501_google_id_token';
 let authToken = null;
 let uiText = {
   openApp: 'Open',
+  subtitle: '',
   accessError: 'Access check failed'
 };
+let headerClockTimer = null;
 
 function formatHeaderMeta() {
 
@@ -19,9 +21,28 @@ function formatHeaderMeta() {
   return new Intl.DateTimeFormat('uk-UA', {
     day: '2-digit',
     month: '2-digit',
+    year: 'numeric',
     hour: '2-digit',
-    minute: '2-digit'
+    minute: '2-digit',
+    second: '2-digit'
   }).format(now);
+}
+
+function updateHeaderMeta() {
+
+  document.getElementById('hubSubtitle').innerText =
+    uiText.subtitle || formatHeaderMeta();
+}
+
+function startHeaderClock() {
+
+  clearInterval(headerClockTimer);
+  updateHeaderMeta();
+
+  headerClockTimer = setInterval(
+    updateHeaderMeta,
+    1000
+  );
 }
 
 function escapeHtml(value) {
@@ -91,8 +112,7 @@ function applyUi(ui) {
   document.getElementById('hubTitle').innerText =
     ui.title || 'Hub';
 
-  document.getElementById('hubSubtitle').innerText =
-    ui.subtitle || formatHeaderMeta();
+  startHeaderClock();
 
   document.getElementById('loginTitle').innerText =
     ui.loginTitle || 'Sign in';
@@ -241,4 +261,5 @@ document
     showOnly('loginBlock');
   });
 
+startHeaderClock();
 tryExistingSession();
