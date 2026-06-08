@@ -91,6 +91,9 @@ function applyUi(ui) {
   document.getElementById('emptyTitle').innerText =
     ui.emptyTitle || 'No access';
 
+  document.getElementById('emptyIcon').innerText =
+    ui.emptyIcon || '';
+
   document.getElementById('emptyText').innerText =
     ui.emptyText || '';
 
