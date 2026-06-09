@@ -12,6 +12,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
   <script src="https://accounts.google.com/gsi/client" async defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.4/build/qrcode.min.js" defer></script>
 </head>
 <body>
 
@@ -44,6 +45,33 @@
       <div class="loader-orbit" aria-label="Loading">
         <span></span>
       </div>
+    </section>
+
+    <section id="twoFactorBlock" class="hub-card two-factor-card hidden">
+      <h2 id="twoFactorTitle">2FA</h2>
+
+      <div id="twoFactorSetup" class="two-factor-setup hidden">
+        <div id="twoFactorQr" class="two-factor-qr"></div>
+
+        <div class="two-factor-secret">
+          <span>Secret</span>
+          <strong id="twoFactorSecret"></strong>
+        </div>
+      </div>
+
+      <input
+        id="twoFactorCode"
+        class="two-factor-code"
+        type="text"
+        inputmode="numeric"
+        autocomplete="one-time-code"
+        maxlength="6"
+        placeholder="000000"
+      >
+
+      <button id="twoFactorSubmitBtn" class="two-factor-submit">
+        Підтвердити
+      </button>
     </section>
 
     <section id="appsBlock" class="hidden">
