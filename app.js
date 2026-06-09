@@ -18,6 +18,7 @@ let sessionExpireTimer = null;
 let sessionCountdownTimer = null;
 let sessionExpiresAt = 0;
 let sessionExpired = false;
+let pendingTwoFactorSecret = '';
 
 function formatHeaderMeta() {
 
@@ -266,6 +267,10 @@ function renderTwoFactor(twoFactor) {
 
   const isSetup =
     Boolean(twoFactor && twoFactor.setupRequired);
+  const secretBlock =
+    document.getElementById('twoFactorSecretBlock');
+  const secretButton =
+    document.getElementById('showTwoFactorSecretBtn');
 
   document.getElementById('twoFactorTitle').innerText =
     isSetup
@@ -277,10 +282,13 @@ function renderTwoFactor(twoFactor) {
     .classList.toggle('hidden', !isSetup);
 
   document.getElementById('twoFactorCode').value = '';
+  document.getElementById('twoFactorSecret').innerText = '';
+  pendingTwoFactorSecret = '';
+  secretBlock.classList.add('hidden');
+  secretButton.innerText = 'Ввести вручну';
 
   if (isSetup) {
-    document.getElementById('twoFactorSecret').innerText =
-      twoFactor.secret || '';
+    pendingTwoFactorSecret = twoFactor.secret || '';
 
     renderTwoFactorQr(twoFactor.otpauthUrl || '');
   }
@@ -292,34 +300,79 @@ function renderTwoFactor(twoFactor) {
     .focus();
 }
 
-function renderTwoFactorQr(value) {
+function renderTwoFactorQr(value, attempt = 0) {
 
   const qr = document.getElementById('twoFactorQr');
 
   qr.innerHTML = '';
 
-  if (
-    !value ||
-    typeof QRCode === 'undefined'
-  ) {
+  if (!value) {
     return;
   }
 
-  QRCode.toCanvas(
-    value,
-    {
-      width: 168,
-      margin: 1
-    },
-    (error, canvas) => {
-      if (error) {
-        console.error(error);
-        return;
-      }
-
-      qr.appendChild(canvas);
+  if (typeof QRCode === 'undefined') {
+    if (attempt < 10) {
+      setTimeout(() => {
+        renderTwoFactorQr(value, attempt + 1);
+      }, 200);
+      return;
     }
-  );
+
+    qr.innerText = 'QR недоступний';
+    return;
+  }
+
+  if (typeof QRCode === 'function') {
+    new QRCode(qr, {
+      text: value,
+      width: 168,
+      height: 168,
+      correctLevel: QRCode.CorrectLevel.M
+    });
+    return;
+  }
+
+  if (typeof QRCode.toCanvas === 'function') {
+    QRCode.toCanvas(
+      value,
+      {
+        width: 168,
+        margin: 1
+      },
+      (error, canvas) => {
+        if (error) {
+          console.error(error);
+          qr.innerText = 'QR недоступний';
+          return;
+        }
+
+        qr.appendChild(canvas);
+      }
+    );
+  }
+}
+
+function toggleTwoFactorSecret() {
+
+  const secretBlock =
+    document.getElementById('twoFactorSecretBlock');
+  const secretValue =
+    document.getElementById('twoFactorSecret');
+  const secretButton =
+    document.getElementById('showTwoFactorSecretBtn');
+  const isHidden =
+    secretBlock.classList.contains('hidden');
+
+  if (isHidden) {
+    secretValue.innerText = pendingTwoFactorSecret;
+    secretBlock.classList.remove('hidden');
+    secretButton.innerText = 'Сховати код';
+    return;
+  }
+
+  secretValue.innerText = '';
+  secretBlock.classList.add('hidden');
+  secretButton.innerText = 'Ввести вручну';
 }
 
 function applyUi(ui) {
@@ -565,6 +618,10 @@ document
 document
   .getElementById('twoFactorSubmitBtn')
   .addEventListener('click', verifyTwoFactorCode);
+
+document
+  .getElementById('showTwoFactorSecretBtn')
+  .addEventListener('click', toggleTwoFactorSecret);
 
 document
   .getElementById('twoFactorCode')
