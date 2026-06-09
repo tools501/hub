@@ -12,7 +12,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
   <script src="https://accounts.google.com/gsi/client" async defer></script>
-  <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.4/build/qrcode.min.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js" defer></script>
 </head>
 <body>
 
@@ -53,8 +53,12 @@
       <div id="twoFactorSetup" class="two-factor-setup hidden">
         <div id="twoFactorQr" class="two-factor-qr"></div>
 
-        <div class="two-factor-secret">
-          <span>Secret</span>
+        <button id="showTwoFactorSecretBtn" class="two-factor-secret-toggle" type="button">
+          Ввести вручну
+        </button>
+
+        <div id="twoFactorSecretBlock" class="two-factor-secret hidden">
+          <span>Код для ручного введення</span>
           <strong id="twoFactorSecret"></strong>
         </div>
       </div>
