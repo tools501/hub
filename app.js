@@ -252,6 +252,7 @@ function showOnly(blockId) {
   [
     'loginBlock',
     'loader',
+    'twoFactorBlock',
     'appsBlock',
     'emptyBlock'
   ].forEach(id => {
@@ -259,6 +260,66 @@ function showOnly(blockId) {
       .getElementById(id)
       .classList.toggle('hidden', id !== blockId);
   });
+}
+
+function renderTwoFactor(twoFactor) {
+
+  const isSetup =
+    Boolean(twoFactor && twoFactor.setupRequired);
+
+  document.getElementById('twoFactorTitle').innerText =
+    isSetup
+      ? 'Налаштування 2FA'
+      : 'Підтвердження 2FA';
+
+  document
+    .getElementById('twoFactorSetup')
+    .classList.toggle('hidden', !isSetup);
+
+  document.getElementById('twoFactorCode').value = '';
+
+  if (isSetup) {
+    document.getElementById('twoFactorSecret').innerText =
+      twoFactor.secret || '';
+
+    renderTwoFactorQr(twoFactor.otpauthUrl || '');
+  }
+
+  showOnly('twoFactorBlock');
+
+  document
+    .getElementById('twoFactorCode')
+    .focus();
+}
+
+function renderTwoFactorQr(value) {
+
+  const qr = document.getElementById('twoFactorQr');
+
+  qr.innerHTML = '';
+
+  if (
+    !value ||
+    typeof QRCode === 'undefined'
+  ) {
+    return;
+  }
+
+  QRCode.toCanvas(
+    value,
+    {
+      width: 168,
+      margin: 1
+    },
+    (error, canvas) => {
+      if (error) {
+        console.error(error);
+        return;
+      }
+
+      qr.appendChild(canvas);
+    }
+  );
 }
 
 function applyUi(ui) {
@@ -350,6 +411,21 @@ function renderApps(apps) {
     .join('');
 }
 
+function renderAllowedApps(apps) {
+
+  document
+    .getElementById('logoutBtn')
+    .classList.remove('hidden');
+
+  if (!apps.length) {
+    showOnly('emptyBlock');
+    return;
+  }
+
+  renderApps(apps);
+  showOnly('appsBlock');
+}
+
 async function loadAllowedApps() {
 
   showOnly('loader');
@@ -366,19 +442,61 @@ async function loadAllowedApps() {
 
   applyUi(result.data.ui);
 
-  const allowedApps = result.data.apps || [];
+  if (
+    result.data.twoFactor &&
+    result.data.twoFactor.required
+  ) {
+    document
+      .getElementById('logoutBtn')
+      .classList.remove('hidden');
 
-  document
-    .getElementById('logoutBtn')
-    .classList.remove('hidden');
-
-  if (!allowedApps.length) {
-    showOnly('emptyBlock');
+    renderTwoFactor(result.data.twoFactor);
     return;
   }
 
-  renderApps(allowedApps);
-  showOnly('appsBlock');
+  renderAllowedApps(result.data.apps || []);
+}
+
+async function verifyTwoFactorCode() {
+
+  const code =
+    document.getElementById('twoFactorCode').value.trim();
+
+  if (!/^\d{6}$/.test(code)) {
+    showToast('Введіть 6 цифр');
+    return;
+  }
+
+  showOnly('loader');
+
+  try {
+    const result = await hubApi(
+      'verify2fa',
+      {
+        code
+      }
+    );
+
+    if (!result.success) {
+      showOnly('twoFactorBlock');
+
+      showToast(
+        result.error === 'TWO_FACTOR_INVALID'
+          ? 'Невірний код'
+          : uiText.accessError
+      );
+
+      return;
+    }
+
+    applyUi(result.data.ui);
+    renderAllowedApps(result.data.apps || []);
+
+  } catch (e) {
+    console.error(e);
+    showOnly('twoFactorBlock');
+    showToast(uiText.accessError);
+  }
 }
 
 async function handleCredentialResponse(response) {
@@ -443,6 +561,18 @@ document
 document
   .getElementById('renewSessionBtn')
   .addEventListener('click', renewSession);
+
+document
+  .getElementById('twoFactorSubmitBtn')
+  .addEventListener('click', verifyTwoFactorCode);
+
+document
+  .getElementById('twoFactorCode')
+  .addEventListener('keydown', event => {
+    if (event.key === 'Enter') {
+      verifyTwoFactorCode();
+    }
+  });
 
 startHeaderClock();
 tryExistingSession();
