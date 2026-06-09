@@ -178,6 +178,23 @@ body::before {
   overflow-wrap: anywhere;
 }
 
+.two-factor-secret-toggle {
+  min-height: 32px;
+  padding: 6px 11px;
+  border: 1px solid rgba(194, 194, 188, 0.72);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.44);
+  color: #333;
+  font-size: 12px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.two-factor-secret-toggle:hover {
+  border-color: rgba(92, 158, 138, 0.46);
+  background: rgba(255, 255, 255, 0.66);
+}
+
 .two-factor-code {
   width: 160px;
   min-height: 44px;
