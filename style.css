@@ -125,6 +125,91 @@ body::before {
   justify-items: center;
 }
 
+.two-factor-card {
+  display: grid;
+  gap: 16px;
+  align-content: center;
+  justify-items: center;
+  width: min(980px, 100%);
+  min-height: 430px;
+  margin: 0 auto;
+  border-top: 0;
+  border-radius: 0 0 14px 14px;
+}
+
+.two-factor-card h2 {
+  margin: 0;
+  font-size: 20px;
+  line-height: 1.15;
+}
+
+.two-factor-setup {
+  display: grid;
+  gap: 12px;
+  justify-items: center;
+}
+
+.two-factor-qr {
+  display: grid;
+  place-items: center;
+  width: 184px;
+  height: 184px;
+  padding: 8px;
+  border: 1px solid rgba(194, 194, 188, 0.62);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.72);
+}
+
+.two-factor-secret {
+  display: grid;
+  gap: 4px;
+  justify-items: center;
+  max-width: min(320px, 100%);
+  color: #555;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.two-factor-secret strong {
+  color: #222;
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  letter-spacing: 1px;
+  overflow-wrap: anywhere;
+}
+
+.two-factor-code {
+  width: 160px;
+  min-height: 44px;
+  padding: 8px 12px;
+  border: 1px solid rgba(194, 194, 188, 0.72);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.64);
+  color: #181818;
+  font-size: 20px;
+  font-weight: 800;
+  letter-spacing: 6px;
+  text-align: center;
+}
+
+.two-factor-code:focus {
+  outline: none;
+  border-color: rgba(92, 158, 138, 0.52);
+  box-shadow: 0 0 0 4px rgba(92, 158, 138, 0.1);
+}
+
+.two-factor-submit {
+  min-height: 38px;
+  padding: 8px 14px;
+  border: 1px solid rgba(92, 158, 138, 0.42);
+  border-radius: 10px;
+  background: rgba(92, 158, 138, 0.14);
+  color: #17231f;
+  font-size: 13px;
+  font-weight: 850;
+  cursor: pointer;
+}
+
 .login-card h2,
 #emptyBlock h2 {
   margin: 0;
@@ -422,6 +507,7 @@ body::before {
   }
 
   .login-card,
+  .two-factor-card,
   #emptyBlock {
     margin-top: 0;
     min-height: 360px;
