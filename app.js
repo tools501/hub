@@ -454,13 +454,28 @@ function renderApps(apps) {
   const appsList = document.getElementById('appsList');
 
   appsList.innerHTML = apps
-    .map(app => `
-      <a class="app-card" href="${escapeHtml(app.url)}">
-        <div>
-          <h2>${escapeHtml(app.title)}</h2>
-        </div>
-      </a>
-    `)
+    .map(app => {
+      const title = escapeHtml(app.title);
+      const url = String(app.url || '').trim();
+
+      if (!url) {
+        return `
+          <div class="app-card app-card-unavailable" aria-disabled="true">
+            <div>
+              <h2>${title}</h2>
+            </div>
+          </div>
+        `;
+      }
+
+      return `
+        <a class="app-card" href="${escapeHtml(url)}">
+          <div>
+            <h2>${title}</h2>
+          </div>
+        </a>
+      `;
+    })
     .join('');
 }
 
